@@ -118,11 +118,11 @@
             z-index: 1;
         }
         
-        .btn-tomar-servicio {
+        .btn-propuesta {
             transition: all 0.2s ease;
         }
         
-        .btn-tomar-servicio:hover {
+        .btn-propuesta:hover {
             transform: scale(1.02);
         }
         
@@ -290,23 +290,46 @@
         </div>
     </div>
 
-    <!-- Modal de confirmación para tomar servicio -->
-    <div id="tomarServicioModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <!-- Modal para enviar propuesta -->
+    <div id="propuestaModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
         <div class="bg-white rounded-2xl max-w-md w-full mx-4 p-6">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-slate-800">Tomar Servicio</h3>
-                <button onclick="cerrarTomarServicioModal()" class="text-slate-400 hover:text-slate-600">
+                <h3 class="text-xl font-bold text-slate-800">Enviar Propuesta</h3>
+                <button onclick="cerrarPropuestaModal()" class="text-slate-400 hover:text-slate-600">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <div id="tomarServicioContenido" class="space-y-4">
-                <p class="text-slate-600">¿Confirmas que quieres tomar este servicio?</p>
-                <p class="text-sm text-slate-500">Al aceptar, el cliente será notificado y podrán comunicarse por chat.</p>
-                <div class="flex gap-3 mt-4">
-                    <button onclick="cerrarTomarServicioModal()" class="flex-1 border py-2 rounded-xl">Cancelar</button>
-                    <button id="confirmarTomarServicioBtn" class="flex-1 bg-green-600 text-white py-2 rounded-xl hover:bg-green-700">Confirmar</button>
+            <form id="propuestaForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Tu presupuesto ($MXN) *</label>
+                    <input type="number" id="propuestaMonto" required min="100" step="100"
+                        class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                        <i class="fas fa-info-circle text-blue-600"></i>
+                        Este es el monto que cobrarás al cliente
+                    </p>
                 </div>
-            </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Mensaje para el cliente</label>
+                    <textarea id="propuestaMensaje" rows="3" 
+                        class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition"
+                        placeholder="Describe por qué eres la mejor opción..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Tiempo estimado</label>
+                    <select id="propuestaTiempo" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+                        <option value="60">1 hora</option>
+                        <option value="120">2 horas</option>
+                        <option value="180">3 horas</option>
+                        <option value="240">4 horas</option>
+                        <option value="300">5 horas</option>
+                        <option value="360">6+ horas</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                    Enviar Propuesta
+                </button>
+            </form>
         </div>
     </div>
 
@@ -406,7 +429,7 @@
                         <i class="fas fa-comments text-slate-600 text-xl hover:text-blue-600 transition"></i>
                         <span id="headerChatBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 hidden items-center justify-center">0</span>
                     </button>
-                    <div id="headerAvatar" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer" onclick="window.mostrarSeccion('perfil')"></div>
+                    <div id="headerAvatar" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer bg-cover bg-center" onclick="window.mostrarSeccion('perfil')"></div>
                 </div>
             </header>
 
@@ -496,7 +519,7 @@
                         <div class="lg:col-span-2 bg-white rounded-xl shadow-sm flex flex-col">
                             <div id="chatHeader" class="p-4 border-b bg-slate-50 hidden">
                                 <div class="flex items-center gap-3">
-                                    <div id="chatClienteAvatar" class="w-12 h-12 rounded-full bg-slate-300 border-2 border-blue-500"></div>
+                                    <div id="chatClienteAvatar" class="w-12 h-12 rounded-full bg-slate-300 border-2 border-blue-500 bg-cover bg-center"></div>
                                     <div>
                                         <h4 id="chatClienteNombre" class="font-bold text-slate-800"></h4>
                                         <p id="chatServicioInfo" class="text-xs text-slate-500"></p>
@@ -556,12 +579,13 @@
                         <h3 class="text-2xl font-bold text-slate-800 mb-6">Mi Perfil Profesional</h3>
                         <div class="flex flex-col items-center mb-8">
                             <div class="relative">
-                                <div id="profileAvatar" class="w-32 h-32 rounded-full bg-slate-300 border-4 border-blue-100"></div>
+                                <div id="profileAvatar" class="w-32 h-32 rounded-full bg-slate-300 border-4 border-blue-100 bg-cover bg-center"></div>
                                 <button onclick="document.getElementById('fotoPerfil').click()" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700">
                                     <i class="fas fa-camera"></i>
                                 </button>
                             </div>
                             <input type="file" id="fotoPerfil" accept="image/*" class="hidden" onchange="subirFotoPerfil()">
+                            <p class="text-sm text-slate-500 mt-2">Haz clic en el icono para cambiar tu foto</p>
                         </div>
                         <form id="perfilForm" class="space-y-4">
                             <input type="text" id="perfilNombre" required class="w-full p-3 border rounded-xl" placeholder="Nombre completo">
@@ -681,7 +705,7 @@
         async function cargarServiciosEnMapa(lat, lng) {
             try {
                 const supabase = initSupabase();
-                const { data: servicios } = await supabase.from('servicios').select('*, cliente:cliente_id(full_name)').eq('status', 'publicado').limit(30);
+                const { data: servicios } = await supabase.from('servicios').select('*, cliente:cliente_id(full_name)').eq('status', 'pendiente_propuestas').limit(30);
                 marcadoresServicios.forEach(m => mapa.removeLayer(m));
                 marcadoresServicios = [];
                 if (!servicios?.length) return;
@@ -697,7 +721,6 @@
                     const marker = L.marker([offsetLat, offsetLng], { icon: iconoServicio }).addTo(mapa);
                     marker.bindPopup(`
                         <b>${serv.subcategoria || 'Servicio'}</b><br>
-                        <span class="text-xs">$${serv.monto_ofertado?.toFixed(2)}</span><br>
                         <button onclick="verDetalleServicio('${serv.id}')" class="mt-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">Ver detalles</button>
                     `);
                     marcadoresServicios.push(marker);
@@ -763,6 +786,53 @@
         }
 
         // =============================================
+        // SUBIR FOTO DE PERFIL (ACTUALIZACIÓN INSTANTÁNEA)
+        // =============================================
+        window.subirFotoPerfil = async function() {
+            const input = document.getElementById('fotoPerfil');
+            if (!input.files?.[0]) return;
+            
+            mostrarCarga('Actualizando foto...');
+            try {
+                const file = input.files[0];
+                if (file.size > 2 * 1024 * 1024) throw new Error('La foto no debe exceder 2MB');
+                
+                // Actualizar instantáneamente en la interfaz
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarHeader = document.getElementById('headerAvatar');
+                    const avatarProfile = document.getElementById('profileAvatar');
+                    if (avatarHeader) avatarHeader.style.backgroundImage = `url('${e.target.result}')`;
+                    if (avatarProfile) avatarProfile.style.backgroundImage = `url('${e.target.result}')`;
+                };
+                reader.readAsDataURL(file);
+                
+                // Subir a Supabase
+                const supabase = initSupabase();
+                const fileName = `profiles/${usuarioActual.id}/${Date.now()}_${file.name}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('profiles-photos')
+                    .upload(fileName, file);
+                
+                if (uploadError) throw uploadError;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('profiles-photos')
+                    .getPublicUrl(fileName);
+                
+                await supabase.from('profiles').update({ photo_url: publicUrl }).eq('id', usuarioActual.id);
+                
+                mostrarToast('Foto actualizada correctamente', 'success');
+            } catch (error) {
+                console.error(error);
+                mostrarToast('Error al actualizar foto: ' + error.message, 'error');
+            } finally {
+                ocultarCarga();
+                input.value = '';
+            }
+        };
+
+        // =============================================
         // MENÚ MÓVIL
         // =============================================
         function iniciarMenuMovil() {
@@ -800,7 +870,7 @@
                 const supabase = initSupabase();
                 const { data: trabajos } = await supabase.from('servicios').select('*').eq('tasker_id', usuarioActual.id);
                 const ahora = new Date();
-                const ganancias = (trabajos || []).filter(t => t.status === 'completado' && new Date(t.fecha_completado || t.created_at).getMonth() === ahora.getMonth()).reduce((s, t) => s + (t.monto_ofertado * 0.85), 0);
+                const ganancias = (trabajos || []).filter(t => t.status === 'completado' && new Date(t.fecha_finalizacion || t.created_at).getMonth() === ahora.getMonth()).reduce((s, t) => s + ((t.monto_acordado || 0) * 0.85), 0);
                 document.getElementById('statsGanancias').textContent = `$${ganancias.toFixed(2)}`;
                 document.getElementById('statsCompletados').textContent = (trabajos || []).filter(t => t.status === 'completado').length;
                 document.getElementById('statsProgreso').textContent = (trabajos || []).filter(t => t.status === 'en_progreso').length;
@@ -826,7 +896,7 @@
         }
 
         // =============================================
-        // SERVICIOS DISPONIBLES (CORREGIDO)
+        // SERVICIOS DISPONIBLES (ENVIAR PROPUESTA)
         // =============================================
         window.cargarDisponibles = async function() {
             const container = document.getElementById('disponiblesContainer');
@@ -840,7 +910,7 @@
                 let query = supabase
                     .from('servicios')
                     .select('*, cliente:cliente_id(full_name, calificacion_promedio, photo_url)')
-                    .eq('status', 'publicado')
+                    .eq('status', 'pendiente_propuestas')
                     .order('created_at', { ascending: false });
                 
                 if (categoriaFiltro) {
@@ -880,12 +950,7 @@
                             </span>
                         </div>
                         
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
-                            <div>
-                                <p class="text-slate-500 text-xs">Presupuesto</p>
-                                <p class="font-bold text-blue-600 text-lg">$${s.monto_ofertado?.toFixed(2)}</p>
-                                <p class="text-xs text-green-600">Recibirías: $${(s.monto_ofertado * 0.85).toFixed(2)}</p>
-                            </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
                             <div>
                                 <p class="text-slate-500 text-xs">Ubicación</p>
                                 <p class="font-medium">${s.ubicacion || 'No especificada'}</p>
@@ -907,9 +972,9 @@
                         </div>
                         
                         <div class="border-t pt-4 flex justify-end">
-                            <button onclick="abrirModalTomarServicio('${s.id}')" 
-                                    class="btn-tomar-servicio bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 shadow-md">
-                                <i class="fas fa-hand-paper"></i> Tomar servicio
+                            <button onclick="abrirPropuestaModal('${s.id}')" 
+                                    class="btn-propuesta bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 shadow-md">
+                                <i class="fas fa-file-signature"></i> Enviar propuesta
                             </button>
                         </div>
                     </div>
@@ -921,50 +986,85 @@
             }
         };
 
-        function abrirModalTomarServicio(servicioId) {
+        function abrirPropuestaModal(servicioId) {
             servicioSeleccionadoId = servicioId;
-            document.getElementById('tomarServicioModal').classList.remove('hidden');
-            document.getElementById('tomarServicioModal').classList.add('flex');
+            document.getElementById('propuestaModal').classList.remove('hidden');
+            document.getElementById('propuestaModal').classList.add('flex');
         }
         
-        function cerrarTomarServicioModal() {
-            document.getElementById('tomarServicioModal').classList.add('hidden');
-            document.getElementById('tomarServicioModal').classList.remove('flex');
+        function cerrarPropuestaModal() {
+            document.getElementById('propuestaModal').classList.add('hidden');
+            document.getElementById('propuestaModal').classList.remove('flex');
             servicioSeleccionadoId = null;
         }
         
-        document.getElementById('confirmarTomarServicioBtn').addEventListener('click', async () => {
+        document.getElementById('propuestaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             if (!servicioSeleccionadoId) return;
+            
+            const monto = parseFloat(document.getElementById('propuestaMonto').value);
+            if (monto < 100) {
+                mostrarToast('El monto mínimo es $100', 'error');
+                return;
+            }
+            
             mostrarCarga();
             try {
                 const supabase = initSupabase();
                 
-                const { error: servicioError } = await supabase
-                    .from('servicios')
-                    .update({ tasker_id: usuarioActual.id, status: 'asignado', updated_at: new Date() })
-                    .eq('id', servicioSeleccionadoId);
-                if (servicioError) throw servicioError;
-                
-                const { data: servicio } = await supabase.from('servicios').select('cliente_id, subcategoria').eq('id', servicioSeleccionadoId).single();
-                
-                const { data: chatExistente } = await supabase
-                    .from('chats')
+                // Verificar si ya envió propuesta
+                const { data: existente } = await supabase
+                    .from('propuestas')
                     .select('id')
                     .eq('servicio_id', servicioSeleccionadoId)
+                    .eq('tasker_id', usuarioActual.id)
                     .maybeSingle();
                     
-                if (!chatExistente) {
-                    await supabase.from('chats').insert([{ servicio_id: servicioSeleccionadoId, usuario1_id: usuarioActual.id, usuario2_id: servicio.cliente_id, created_at: new Date() }]);
+                if (existente) {
+                    mostrarToast('Ya enviaste una propuesta para este servicio', 'warning');
+                    cerrarPropuestaModal();
+                    return;
                 }
                 
-                await supabase.from('notificaciones').insert([{ usuario_id: servicio.cliente_id, tipo: 'servicio', titulo: '¡Tasker asignado!', mensaje: `Un profesional ha tomado tu servicio de ${servicio.subcategoria}` }]);
+                // Crear propuesta
+                const { error } = await supabase
+                    .from('propuestas')
+                    .insert([{
+                        servicio_id: servicioSeleccionadoId,
+                        tasker_id: usuarioActual.id,
+                        monto_propuesto: monto,
+                        mensaje: document.getElementById('propuestaMensaje').value,
+                        tiempo_estimado: parseInt(document.getElementById('propuestaTiempo').value),
+                        status: 'pendiente',
+                        created_at: new Date()
+                    }]);
+                    
+                if (error) throw error;
                 
-                mostrarToast('✅ Servicio tomado exitosamente', 'success');
-                cerrarTomarServicioModal();
-                window.cargarMisTrabajos();
-                window.cargarDisponibles();
-                await cargarDashboard();
-            } catch (e) { mostrarToast('Error: ' + e.message, 'error'); } finally { ocultarCarga(); }
+                // Notificar al cliente
+                const { data: servicio } = await supabase
+                    .from('servicios')
+                    .select('cliente_id')
+                    .eq('id', servicioSeleccionadoId)
+                    .single();
+                    
+                await supabase
+                    .from('notificaciones')
+                    .insert([{
+                        usuario_id: servicio.cliente_id,
+                        tipo: 'propuesta',
+                        titulo: '¡Nueva propuesta recibida!',
+                        mensaje: `Un tasker ha enviado una propuesta para tu servicio`
+                    }]);
+                    
+                mostrarToast('✅ Propuesta enviada exitosamente', 'success');
+                cerrarPropuestaModal();
+                
+            } catch (e) {
+                mostrarToast('Error: ' + e.message, 'error');
+            } finally {
+                ocultarCarga();
+            }
         });
 
         // =============================================
@@ -989,7 +1089,7 @@
                             <span class="status-badge ${esAsignado ? 'status-asignado' : esProgreso ? 'status-progreso' : 'status-completado'}">${t.status === 'asignado' ? 'Asignado' : t.status === 'en_progreso' ? 'En progreso' : 'Completado'}</span>
                         </div>
                         <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
-                            <div><p class="text-slate-500">Presupuesto</p><p class="font-bold text-blue-600">$${(t.monto_ofertado).toFixed(2)}</p><p class="text-xs text-green-600">Recibirás: $${(t.monto_ofertado * 0.85).toFixed(2)}</p></div>
+                            <div><p class="text-slate-500">Presupuesto acordado</p><p class="font-bold text-blue-600">$${(t.monto_acordado || 0).toFixed(2)}</p><p class="text-xs text-green-600">Recibirás: $${((t.monto_acordado || 0) * 0.85).toFixed(2)}</p></div>
                             <div><p class="text-slate-500">Ubicación</p><p>${t.ubicacion || ''}</p></div>
                         </div>
                         <div class="border-t pt-4 mb-4">
@@ -1051,8 +1151,8 @@
                 document.getElementById('comisionesTotales').textContent = `$${comisiones.toFixed(2)}`;
                 document.getElementById('saldoDisponible').textContent = `Saldo disponible: $${saldo.toFixed(2)}`;
                 const tbody = document.getElementById('pagosTableBody');
-                if (!pagos?.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-slate-400">No hay pagos</tbody>'; return; }
-                tbody.innerHTML = pagos.map(p => `<tr class="border-b"><td class="p-3">${new Date(p.fecha_pago).toLocaleDateString()}</td><td class="p-3">${p.servicio?.subcategoria || ''}</td><td class="p-3">$${p.monto_total?.toFixed(2)}</td><td class="p-3">$${p.comision_taskers?.toFixed(2)}</td><td class="p-3 font-bold text-green-600">$${p.monto_tasker?.toFixed(2)}</td><td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${p.status === 'completado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${p.status}</span></td></td>`).join('');
+                if (!pagos?.length) { tbody.innerHTML = '<td><td colspan="6" class="text-center p-8 text-slate-400">No hay pagos</tbody>'; return; }
+                tbody.innerHTML = pagos.map(p => `<tr class="border-b"><td class="p-3">${new Date(p.fecha_pago).toLocaleDateString()}</td><td class="p-3">${p.servicio?.subcategoria || ''}</td><td class="p-3">$${p.monto_total?.toFixed(2)}</td><td class="p-3">$${p.comision_taskers?.toFixed(2)}</td><td class="p-3 font-bold text-green-600">$${p.monto_tasker?.toFixed(2)}</td><td class="p-3"><span class="px-2 py-1 rounded-full text-xs ${p.status === 'completado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">${p.status}</span></td></tr>`).join('');
             } catch (e) { console.error(e); }
         }
 
@@ -1148,24 +1248,6 @@
                 await cargarUsuario();
             } catch (e) { mostrarToast('Error: ' + e.message, 'error'); }
         });
-
-        window.subirFotoPerfil = async function() {
-            const i = document.getElementById('fotoPerfil');
-            if (!i.files?.[0]) return;
-            mostrarCarga();
-            try {
-                const f = i.files[0];
-                if (f.size > 2 * 1024 * 1024) throw new Error('Máx 2MB');
-                const supabase = initSupabase();
-                const n = `profiles/${usuarioActual.id}/${Date.now()}_${f.name}`;
-                await supabase.storage.from('profiles-photos').upload(n, f);
-                const { data: { publicUrl } } = supabase.storage.from('profiles-photos').getPublicUrl(n);
-                await supabase.from('profiles').update({ photo_url: publicUrl }).eq('id', usuarioActual.id);
-                document.getElementById('headerAvatar').style.backgroundImage = `url('${publicUrl}')`;
-                document.getElementById('profileAvatar').style.backgroundImage = `url('${publicUrl}')`;
-                mostrarToast('Foto actualizada', 'success');
-            } catch (e) { mostrarToast('Error: ' + e.message, 'error'); } finally { ocultarCarga(); }
-        };
 
         // =============================================
         // CANCELAR CUENTA
