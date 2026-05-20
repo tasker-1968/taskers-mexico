@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Tasker's México | Soluciones reales por manos expertas</title>
+    <title>Tasker's México | Profesionales a tu alcance</title>
     
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
@@ -23,16 +23,17 @@
             overflow: hidden;
         }
         
-        .hero-bg::before {
+        .hero-bg::after {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
             right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(255,255,255,0.05)" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') repeat-x bottom;
-            background-size: 1440px auto;
-            opacity: 0.3;
+            width: 50%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
             pointer-events: none;
         }
         
@@ -40,6 +41,7 @@
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             border: 1px solid rgba(59, 130, 246, 0.1);
+            background: white;
         }
         
         .category-card:hover {
@@ -116,7 +118,7 @@
         <div class="max-w-4xl mx-auto relative z-10">
             <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 px-4 sm:px-6 py-2 rounded-full text-white text-xs sm:text-sm font-bold uppercase tracking-wider mb-6 sm:mb-8">
                 <i class="fas fa-crown text-yellow-400"></i>
-                TASKERS MÉXICO
+                ENCUENTRA PROFESIONALES CERTIFICADOS
                 <i class="fas fa-crown text-yellow-400"></i>
             </div>
             <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-4 sm:mb-6 leading-tight">
@@ -161,7 +163,6 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5 mb-12 sm:mb-16">
-            <!-- Mantenimiento -->
             <div onclick="showSubcats('mantenimiento')" class="category-card bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl text-center">
                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <i class="fas fa-wrench text-xl sm:text-2xl text-blue-600"></i>
@@ -169,7 +170,6 @@
                 <h3 class="font-bold text-sm sm:text-base">Mantenimiento</h3>
                 <p class="text-xs text-slate-400 mt-1">Hogar e Industria</p>
             </div>
-            <!-- Limpieza -->
             <div onclick="showSubcats('limpieza')" class="category-card bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl text-center">
                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <i class="fas fa-sparkles text-xl sm:text-2xl text-emerald-600"></i>
@@ -177,7 +177,6 @@
                 <h3 class="font-bold text-sm sm:text-base">Limpieza</h3>
                 <p class="text-xs text-slate-400 mt-1">Residencial y Comercial</p>
             </div>
-            <!-- Cuidados -->
             <div onclick="showSubcats('cuidados')" class="category-card bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl text-center">
                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-rose-50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <i class="fas fa-heart text-xl sm:text-2xl text-rose-600"></i>
@@ -185,7 +184,6 @@
                 <h3 class="font-bold text-sm sm:text-base">Cuidados</h3>
                 <p class="text-xs text-slate-400 mt-1">Personas y Mascotas</p>
             </div>
-            <!-- Especializados -->
             <div onclick="showSubcats('especializados')" class="category-card bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl text-center">
                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <i class="fas fa-microchip text-xl sm:text-2xl text-amber-600"></i>
@@ -193,7 +191,6 @@
                 <h3 class="font-bold text-sm sm:text-base">Especializados</h3>
                 <p class="text-xs text-slate-400 mt-1">Técnicos Certificados</p>
             </div>
-            <!-- Belleza -->
             <div onclick="showSubcats('belleza')" class="category-card bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-xl text-center">
                 <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <i class="fas fa-scissors text-xl sm:text-2xl text-purple-600"></i>
@@ -203,7 +200,6 @@
             </div>
         </div>
 
-        <!-- Subcategorías Panel -->
         <div id="subcat-container" class="subcat-panel bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200">
             <div class="flex justify-between items-center mb-4 sm:mb-6">
                 <h4 id="subcat-title" class="text-lg sm:text-xl font-bold text-blue-600">Subcategorías</h4>
@@ -287,42 +283,21 @@
 
     <script src="config.js"></script>
     <script>
-        // =============================================
-        // DATOS DE CATEGORÍAS
-        // =============================================
         const categoriasData = {
-            mantenimiento: { 
-                title: 'Mantenimiento del Hogar e Industria', 
-                items: ['Plomería', 'Carpintería', 'Albañilería', 'Pintura', 'Electricidad', 'Impermeabilización', 'Cerrajería', 'Herrería', 'Aluminio y Vidrio'] 
-            },
-            limpieza: { 
-                title: 'Servicios de Limpieza', 
-                items: ['Limpieza de Hogar', 'Limpieza de Oficinas', 'Lavado de Salas/Alfombras', 'Limpieza Post-Obra', 'Sanitización', 'Limpieza de Vidrios', 'Limpieza Profunda'] 
-            },
-            cuidados: { 
-                title: 'Cuidados y Asistencia', 
-                items: ['Cuidado de Niños', 'Cuidado de Enfermos', 'Cuidado de Adultos Mayores', 'Paseo de Mascotas', 'Entrenamiento Canino', 'Enfermería a domicilio'] 
-            },
-            especializados: { 
-                title: 'Servicios Especializados', 
-                items: ['Mecánica Automotriz', 'Reparación de llantas', 'Pipas de Agua', 'Renta de maquinaria', 'Clases Particulares', 'Mudanzas', 'Reparación de línea blanca', 'Lavado de cisternas', 'Instalación de Gas', 'Fiestas y Eventos', 'Soporte Técnico', 'Fumigación', 'Grúas', 'Andamios', 'Renta de Mesas y Sillas', 'Seguridad y Vigilancia', 'Ponchaduras', 'Chefs'] 
-            },
-            belleza: { 
-                title: 'Belleza y Cuidado Personal', 
-                items: ['Barbería', 'Manicura y Pedicura', 'Maquillaje Profesional', 'Estilismo y Tintes', 'Masajes Relajantes', 'Depilación', 'Microblading', 'Tratamientos faciales'] 
-            }
+            mantenimiento: { title: 'Mantenimiento del Hogar e Industria', items: ['Plomería', 'Carpintería', 'Albañilería', 'Pintura', 'Electricidad', 'Impermeabilización', 'Cerrajería', 'Herrería', 'Aluminio y Vidrio'] },
+            limpieza: { title: 'Servicios de Limpieza', items: ['Limpieza de Hogar', 'Limpieza de Oficinas', 'Lavado de Salas/Alfombras', 'Limpieza Post-Obra', 'Sanitización', 'Limpieza de Vidrios', 'Limpieza Profunda'] },
+            cuidados: { title: 'Cuidados y Asistencia', items: ['Cuidado de Niños', 'Cuidado de Enfermos', 'Cuidado de Adultos Mayores', 'Paseo de Mascotas', 'Entrenamiento Canino', 'Enfermería a domicilio'] },
+            especializados: { title: 'Servicios Especializados', items: ['Mecánica Automotriz', 'Reparación de llantas', 'Pipas de Agua', 'Renta de maquinaria', 'Clases Particulares', 'Mudanzas', 'Reparación de línea blanca', 'Lavado de cisternas', 'Instalación de Gas', 'Fiestas y Eventos', 'Soporte Técnico', 'Fumigación', 'Grúas', 'Andamios', 'Renta de Mesas y Sillas', 'Seguridad y Vigilancia', 'Ponchaduras', 'Chefs'] },
+            belleza: { title: 'Belleza y Cuidado Personal', items: ['Barbería', 'Manicura y Pedicura', 'Maquillaje Profesional', 'Estilismo y Tintes', 'Masajes Relajantes', 'Depilación', 'Microblading', 'Tratamientos faciales'] }
         };
 
         window.showSubcats = function(catKey) {
             const container = document.getElementById('subcat-container');
             const title = document.getElementById('subcat-title');
             const list = document.getElementById('subcat-list');
-            
             if (!categoriasData[catKey]) return;
-            
             title.textContent = categoriasData[catKey].title;
             list.innerHTML = '';
-            
             categoriasData[catKey].items.forEach(item => {
                 const btn = document.createElement('button');
                 btn.className = 'subcat-btn flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-xl hover:bg-blue-600 hover:text-white transition-all group font-medium text-left text-sm';
@@ -330,7 +305,6 @@
                 btn.onclick = () => window.location.href = `servicios.html?cat=${catKey.charAt(0).toUpperCase() + catKey.slice(1)}&sub=${encodeURIComponent(item)}`;
                 list.appendChild(btn);
             });
-            
             container.style.display = 'block';
             container.scrollIntoView({ behavior: 'smooth', block: 'center' });
         };
@@ -339,52 +313,22 @@
             document.getElementById('subcat-container').style.display = 'none';
         };
 
-        // =============================================
-        // NAVBAR - Usando config.js
-        // =============================================
         async function checkUser() {
             try {
                 const supabase = initSupabase();
                 if (!supabase) return;
-                
                 const { data: { session } } = await supabase.auth.getSession();
                 const nav = document.getElementById('nav-buttons');
-                
                 if (session) {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', session.user.id)
-                        .maybeSingle();
-                    
+                    const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle();
                     let dashboardLink = 'dashboard-cliente.html';
                     if (profile?.role === 'tasker') dashboardLink = 'dashboard-tasker.html';
                     if (profile?.role === 'admin') dashboardLink = 'admin.html';
-                    
-                    nav.innerHTML = `
-                        <a href="${dashboardLink}" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition flex items-center gap-2">
-                            <i class="fas fa-tachometer-alt"></i> Mi Panel
-                        </a>
-                        <button onclick="cerrarSesion()" class="text-sm font-semibold text-red-600 hover:text-red-700 transition flex items-center gap-2">
-                            <i class="fas fa-sign-out-alt"></i> Salir
-                        </button>
-                    `;
+                    nav.innerHTML = `<a href="${dashboardLink}" class="text-sm font-semibold text-slate-700 hover:text-blue-600 transition flex items-center gap-2"><i class="fas fa-tachometer-alt"></i> Mi Panel</a><button onclick="cerrarSesion()" class="text-sm font-semibold text-red-600 hover:text-red-700 transition flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> Salir</button>`;
                 } else {
-                    nav.innerHTML = `
-                        <a href="login.html" class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition flex items-center gap-2">
-                            <i class="fas fa-sign-in-alt"></i> Ingresar
-                        </a>
-                        <a href="registro-clientes.html" class="flex text-sm font-semibold text-slate-600 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-50 transition items-center gap-2">
-                            <i class="fas fa-user"></i> Soy Cliente
-                        </a>
-                        <a href="registro-taskers.html" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-xl font-semibold text-sm hover:shadow-lg transition flex items-center gap-2">
-                            <i class="fas fa-briefcase"></i> Soy Tasker
-                        </a>
-                    `;
+                    nav.innerHTML = `<a href="login.html" class="text-sm font-semibold text-blue-600 hover:text-blue-700 transition flex items-center gap-2"><i class="fas fa-sign-in-alt"></i> Ingresar</a><a href="registro-clientes.html" class="flex text-sm font-semibold text-slate-600 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-50 transition items-center gap-2"><i class="fas fa-user"></i> Soy Cliente</a><a href="registro-taskers.html" class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-2 rounded-xl font-semibold text-sm hover:shadow-lg transition flex items-center gap-2"><i class="fas fa-briefcase"></i> Soy Tasker</a>`;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            } catch (error) { console.error('Error:', error); }
         }
         
         window.cerrarSesion = async function() {
