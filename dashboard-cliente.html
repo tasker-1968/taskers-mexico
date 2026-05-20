@@ -356,7 +356,7 @@
                 <a href="#" onclick="window.cambiarSeccion('mis-servicios'); return false;" class="enlace-moderno flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white transition-all" id="link-mis-servicios">
                     <i class="fas fa-list w-5"></i><span>Mis Servicios</span>
                 </a>
-                <a href="#" onclick="window.cambiarSeccion('chat'); return false;" class="enlace-moderno flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white transition-all relative" id="link-chat">
+                <a href="#" onclick="window.cambiarSeccion('chat'); return false;" class="enlace-moderno flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white transition-all" id="link-chat">
                     <i class="fas fa-comments w-5"></i><span>Mensajes</span>
                     <span id="contadorChat" class="ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full hidden">0</span>
                 </a>
@@ -380,6 +380,7 @@
 
         <!-- Contenido principal -->
         <main class="flex-1 flex flex-col overflow-y-auto bg-slate-50">
+            <!-- HEADER CON BOTÓN DE CERRAR SESIÓN -->
             <header class="bg-white/80 backdrop-blur-sm border-b border-slate-200 p-4 sticky top-0 z-10 flex justify-between items-center">
                 <div class="ml-12 md:ml-0">
                     <h2 id="tituloSeccion" class="text-xl font-bold text-slate-800">Inicio</h2>
@@ -390,7 +391,12 @@
                         <i class="fas fa-comments text-slate-600 text-xl hover:text-blue-600 transition"></i>
                         <span id="badgeChatHeader" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 hidden items-center justify-center">0</span>
                     </button>
-                    <div id="avatarHeader" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer" onclick="window.cambiarSeccion('perfil')"></div>
+                    <!-- Botón de cerrar sesión en el header -->
+                    <button onclick="window.cerrarSesionCliente()" class="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl transition">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span class="hidden sm:inline">Salir</span>
+                    </button>
+                    <div id="avatarHeader" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer bg-cover bg-center" onclick="window.cambiarSeccion('perfil')"></div>
                 </div>
             </header>
 
@@ -1095,8 +1101,8 @@
                 }).eq('id', servicioId);
                 
                 // Mostrar modal de pago
-                const servicioActualizado = await supabase.from('servicios').select('*').eq('id', servicioId).single();
-                await mostrarModalPago(servicioActualizado.data);
+                const { data: servicioActualizado } = await supabase.from('servicios').select('*').eq('id', servicioId).single();
+                await mostrarModalPago(servicioActualizado);
                 
             } catch (error) {
                 mostrarToast('Error: ' + error.message, 'error');
@@ -1214,7 +1220,7 @@
                 contenedor.innerHTML = serviciosConTasker.map(s => {
                     const tasker = s.tasker_info;
                     const puedeConfirmar = s.status === 'en_progreso';
-                    const montoMostrar = s.monto_acordado || (s.monto_ofertado || 0);
+                    const montoMostrar = s.monto_acordado || 0;
                     
                     return `
                     <div class="bg-white rounded-xl shadow-sm p-5">
@@ -1253,7 +1259,6 @@
                 const { data: d } = await supabase.from('servicios').select('tasker_id, monto_acordado').eq('id', id).single();
                 await supabase.from('notificaciones').insert([{ usuario_id: d.tasker_id, tipo: 'pago', titulo: 'Servicio completado', mensaje: 'El cliente confirmó la finalización del servicio' }]);
                 
-                // Aquí se puede agregar la calificación
                 mostrarToast('¡Gracias por confirmar! Ahora puedes calificar al tasker', 'success');
                 window.cargarMisServicios();
                 await cargarDashboard();
@@ -1401,7 +1406,7 @@
             const t = document.getElementById('tablaPagos');
             const start = (paginaActualPagos - 1) * 10;
             const pagos = pagosTotales.slice(start, start + 10);
-            if (!pagos.length) { t.innerHTML = '<td><td colspan="5" class="text-center p-4 text-slate-400">No hay pagos</tbody>'; }
+            if (!pagos.length) { t.innerHTML = '<tr><td colspan="5" class="text-center p-4 text-slate-400">No hay pagos</tbody>'; }
             else {
                 t.innerHTML = pagos.map(x => `<tr class="border-b"><td class="p-4">${new Date(x.fecha_pago).toLocaleDateString()}</td><td class="p-4">${x.servicio?.subcategoria || ''}</td><td class="p-4 font-bold">$${x.monto_total?.toFixed(2)}</td><td class="p-4"><span class="badge-estado badge-completado">Completado</span></td></tr>`).join('');
             }
@@ -1478,7 +1483,6 @@
             // Escuchar nuevas propuestas
             supabase.channel('propuestas-cliente').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'propuestas' }, async (p) => {
                 if (p.new) {
-                    // Verificar si la propuesta es para un servicio del cliente
                     const { data: servicio } = await supabase.from('servicios').select('cliente_id').eq('id', p.new.servicio_id).single();
                     if (servicio?.cliente_id === usuarioActual?.id) {
                         mostrarToast('Nueva propuesta recibida para tu servicio', 'success');
