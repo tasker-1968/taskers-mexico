@@ -6,24 +6,21 @@
 const SUPABASE_URL = 'https://ayhflwricnkptoinabhe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5aGZsd3JpY25rcHRvaW5hYmhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI3NTI0OTksImV4cCI6MjA4ODMyODQ5OX0.m5LaJmQVqoiBCbxYJ3ZGEV5x2c4oGjK9iHKtAfcc21M';
 
-// Inicializar cliente Supabase (solo una vez)
+// Inicializar cliente Supabase
 let supabaseClient = null;
 
 function initSupabase() {
     if (!supabaseClient && typeof window.supabase !== 'undefined') {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase inicializado desde config.js');
-    } else if (typeof window.supabase === 'undefined') {
-        console.error('❌ Supabase no cargado');
+        console.log('✅ Supabase inicializado');
     }
     return supabaseClient;
 }
 
 // =============================================
-// NOTIFICACIONES TOAST (modernas)
+// NOTIFICACIONES TOAST
 // =============================================
 function mostrarToast(mensaje, tipo = 'info') {
-    // Eliminar toast anterior si existe
     const toastAnterior = document.querySelector('.toast-notification');
     if (toastAnterior) toastAnterior.remove();
     
@@ -75,6 +72,28 @@ function ocultarCarga() {
 }
 
 // =============================================
+// ACTUALIZAR FOTO DE PERFIL INSTANTÁNEAMENTE
+// =============================================
+async function actualizarFotoPerfil(file, elementoId) {
+    if (!file) return null;
+    
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imgElement = document.getElementById(elementoId);
+            if (imgElement) {
+                imgElement.style.backgroundImage = `url('${e.target.result}')`;
+                imgElement.style.backgroundSize = 'cover';
+                imgElement.style.backgroundPosition = 'center';
+            }
+            resolve(e.target.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// =============================================
 // FORMATEADORES
 // =============================================
 function formatearMoneda(monto) {
@@ -91,26 +110,10 @@ function formatearFecha(fecha) {
     return d.toLocaleDateString('es-MX');
 }
 
-function formatearFechaHora(fecha) {
-    if (!fecha) return 'N/A';
+function formatearHora(fecha) {
+    if (!fecha) return '';
     const d = new Date(fecha);
-    return d.toLocaleDateString('es-MX') + ' ' + d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-}
-
-// =============================================
-// ESTADOS DE SERVICIOS
-// =============================================
-const estadosServicio = {
-    pendiente_pago: { texto: 'Pendiente pago', clase: 'badge-pendiente', icono: 'fa-hourglass-half' },
-    publicado: { texto: 'Buscando tasker', clase: 'badge-publicado', icono: 'fa-search' },
-    asignado: { texto: 'Asignado', clase: 'badge-asignado', icono: 'fa-handshake' },
-    en_progreso: { texto: 'En progreso', clase: 'badge-progreso', icono: 'fa-play-circle' },
-    completado: { texto: 'Completado', clase: 'badge-completado', icono: 'fa-check-circle' },
-    cancelado: { texto: 'Cancelado', clase: 'badge-cancelado', icono: 'fa-times-circle' }
-};
-
-function obtenerEstadoServicio(status) {
-    return estadosServicio[status] || { texto: status, clase: 'badge-pendiente', icono: 'fa-question-circle' };
+    return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 }
 
 // =============================================
@@ -126,34 +129,6 @@ async function verificarSesion(redirectUrl = 'login.html') {
         return null;
     }
     return session;
-}
-
-async function obtenerPerfil(usuarioId) {
-    const supabase = initSupabase();
-    if (!supabase) return null;
-    
-    const { data: perfil, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', usuarioId)
-        .maybeSingle();
-    
-    if (error) {
-        console.error('Error obteniendo perfil:', error);
-        return null;
-    }
-    return perfil;
-}
-
-// =============================================
-// CERRAR SESIÓN
-// =============================================
-async function cerrarSesion() {
-    const supabase = initSupabase();
-    if (supabase) {
-        await supabase.auth.signOut();
-    }
-    window.location.href = 'index.html';
 }
 
 // =============================================
