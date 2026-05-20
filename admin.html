@@ -319,7 +319,7 @@
                         <p id="section-subtitle" class="text-sm text-slate-500">Panel de control administrativo</p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div id="headerAvatar" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer" onclick="window.mostrarSeccion('perfil')"></div>
+                        <div id="headerAvatar" class="w-10 h-10 rounded-full bg-slate-300 border-2 border-blue-500 cursor-pointer bg-cover bg-center" onclick="window.mostrarSeccion('perfil')"></div>
                     </div>
                 </div>
             </header>
@@ -381,7 +381,7 @@
                                     <tr><th class="p-4 text-left">Nombre</th><th class="p-4 text-left">Email</th><th class="p-4 text-left">Teléfono</th><th class="p-4 text-left">Documentos</th><th class="p-4 text-left">Acciones</th></tr>
                                 </thead>
                                 <tbody id="taskersTable"><tr><td colspan="5" class="text-center p-8 text-slate-400">Cargando...</tbody>
-                            </table>
+                            </tr>
                         </div>
                     </div>
                 </section>
@@ -403,7 +403,7 @@
                                 <thead class="bg-slate-50">
                                     <tr><th class="p-4 text-left">Usuario</th><th class="p-4 text-left">Email</th><th class="p-4 text-left">Rol</th><th class="p-4 text-left">Estado</th><th class="p-4 text-left">Documentos</th><th class="p-4 text-left">Acciones</th></tr>
                                 </thead>
-                                <tbody id="usuariosTable"><tr><td colspan="6" class="text-center p-8 text-slate-400">Cargando...</tbody>
+                                <tbody id="usuariosTable"></table><td colspan="6" class="text-center p-8 text-slate-400">Cargando...</tbody>
                             </table>
                         </div>
                     </div>
@@ -416,8 +416,7 @@
                             <h3 class="font-bold"><i class="fas fa-briefcase mr-2"></i>Todos los Servicios</h3>
                             <select id="filtroServicios" onchange="window.cargarServicios()" class="px-3 py-1 rounded-lg text-sm text-slate-700">
                                 <option value="todos">Todos</option>
-                                <option value="pendiente_pago">Pendiente pago</option>
-                                <option value="publicado">Publicado</option>
+                                <option value="pendiente_propuestas">Buscando tasker</option>
                                 <option value="asignado">Asignado</option>
                                 <option value="en_progreso">En progreso</option>
                                 <option value="completado">Completado</option>
@@ -478,7 +477,7 @@
                                 <thead class="bg-slate-50">
                                     <tr><th class="p-3 text-left">Fecha</th><th class="p-3 text-left">Servicio</th><th class="p-3 text-left">Cliente</th><th class="p-3 text-left">Tasker</th><th class="p-3 text-left">Monto Total</th><th class="p-3 text-left">Comisión</th></tr>
                                 </thead>
-                                <tbody id="gananciasTable"><td><td colspan="6" class="text-center p-8 text-slate-400">Cargando...</tbody>
+                                <tbody id="gananciasTable"><tr><td colspan="6" class="text-center p-8 text-slate-400">Cargando...</tbody>
                             </table>
                         </div>
                     </div>
@@ -490,7 +489,7 @@
                         <h3 class="text-2xl font-bold text-slate-800 mb-6">Mi Perfil</h3>
                         <div class="flex flex-col items-center mb-8">
                             <div class="relative">
-                                <div id="adminAvatar" class="w-32 h-32 rounded-full bg-slate-300 border-4 border-blue-100"></div>
+                                <div id="adminAvatar" class="w-32 h-32 rounded-full bg-slate-300 border-4 border-blue-100 bg-cover bg-center"></div>
                                 <button onclick="document.getElementById('fotoAdmin').click()" class="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700">
                                     <i class="fas fa-camera"></i>
                                 </button>
@@ -520,6 +519,53 @@
         let estadosChart = null;
 
         // =============================================
+        // SUBIR FOTO DE PERFIL (ACTUALIZACIÓN INSTANTÁNEA)
+        // =============================================
+        window.subirFotoAdmin = async function() {
+            const input = document.getElementById('fotoAdmin');
+            if (!input.files?.[0]) return;
+            
+            mostrarCarga('Actualizando foto...');
+            try {
+                const file = input.files[0];
+                if (file.size > 2 * 1024 * 1024) throw new Error('La foto no debe exceder 2MB');
+                
+                // Actualizar instantáneamente en la interfaz
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarHeader = document.getElementById('headerAvatar');
+                    const avatarAdmin = document.getElementById('adminAvatar');
+                    if (avatarHeader) avatarHeader.style.backgroundImage = `url('${e.target.result}')`;
+                    if (avatarAdmin) avatarAdmin.style.backgroundImage = `url('${e.target.result}')`;
+                };
+                reader.readAsDataURL(file);
+                
+                // Subir a Supabase
+                const supabase = initSupabase();
+                const fileName = `profiles/${usuarioActual.id}/${Date.now()}_${file.name}`;
+                const { error: uploadError } = await supabase.storage
+                    .from('profiles-photos')
+                    .upload(fileName, file);
+                
+                if (uploadError) throw uploadError;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from('profiles-photos')
+                    .getPublicUrl(fileName);
+                
+                await supabase.from('profiles').update({ photo_url: publicUrl }).eq('id', usuarioActual.id);
+                
+                mostrarToast('Foto actualizada correctamente', 'success');
+            } catch (error) {
+                console.error(error);
+                mostrarToast('Error al actualizar foto: ' + error.message, 'error');
+            } finally {
+                ocultarCarga();
+                input.value = '';
+            }
+        };
+
+        // =============================================
         // VERIFICAR ADMIN
         // =============================================
         async function verificarAdmin() {
@@ -536,11 +582,13 @@
                 }
                 usuarioActual = perfil;
                 document.getElementById('adminInfo').innerHTML = `<p class="font-bold">${perfil.full_name || 'Administrador'}</p><p class="text-xs text-blue-300">${perfil.email}</p>`;
-                if (perfil.photo_url) document.getElementById('headerAvatar').style.backgroundImage = `url('${perfil.photo_url}')`;
+                if (perfil.photo_url) {
+                    document.getElementById('headerAvatar').style.backgroundImage = `url('${perfil.photo_url}')`;
+                    document.getElementById('adminAvatar').style.backgroundImage = `url('${perfil.photo_url}')`;
+                }
                 document.getElementById('adminNombre').value = perfil.full_name || '';
                 document.getElementById('adminEmail').value = perfil.email || '';
                 document.getElementById('adminTelefono').value = perfil.phone || '';
-                if (perfil.photo_url) document.getElementById('adminAvatar').style.backgroundImage = `url('${perfil.photo_url}')`;
                 return session;
             } catch (error) { console.error(error); window.location.href = 'login.html'; return null; } finally { ocultarCarga(); }
         }
@@ -569,7 +617,7 @@
                 const supabase = initSupabase();
                 const { count: totalUsuarios } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
                 const { count: totalPendientes } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'tasker').eq('status', 'pending');
-                const { count: totalServicios } = await supabase.from('servicios').select('*', { count: 'exact', head: true }).in('status', ['publicado', 'asignado', 'en_progreso']);
+                const { count: totalServicios } = await supabase.from('servicios').select('*', { count: 'exact', head: true }).in('status', ['pendiente_propuestas', 'asignado', 'en_progreso']);
                 const { data: pagos } = await supabase.from('pagos').select('comision_taskers').eq('status', 'completado');
                 const totalGanancias = pagos?.reduce((sum, p) => sum + (p.comision_taskers || 0), 0) || 0;
                 document.getElementById('totalUsuarios').textContent = totalUsuarios || 0;
@@ -595,14 +643,14 @@
                     datosActividad.push(count || 0);
                 }
                 const { data: estados } = await supabase.from('servicios').select('status');
-                const estadosCount = { pendiente_pago: 0, publicado: 0, asignado: 0, en_progreso: 0, completado: 0, cancelado: 0 };
+                const estadosCount = { pendiente_propuestas: 0, asignado: 0, en_progreso: 0, completado: 0, cancelado: 0 };
                 (estados || []).forEach(s => { if (estadosCount[s.status] !== undefined) estadosCount[s.status]++; });
                 const ctx = document.getElementById('activityChart').getContext('2d');
                 if (activityChart) activityChart.destroy();
                 activityChart = new Chart(ctx, { type: 'line', data: { labels: ['Hace 5 meses', 'Hace 4 meses', 'Hace 3 meses', 'Hace 2 meses', 'Mes pasado', 'Este mes'], datasets: [{ label: 'Servicios creados', data: datosActividad, borderColor: '#3b82f6', tension: 0.4, fill: true }] }, options: { responsive: true, maintainAspectRatio: false } });
                 const ctx2 = document.getElementById('estadosChart').getContext('2d');
                 if (estadosChart) estadosChart.destroy();
-                estadosChart = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Pendiente pago', 'Publicado', 'Asignado', 'En progreso', 'Completado', 'Cancelado'], datasets: [{ data: [estadosCount.pendiente_pago, estadosCount.publicado, estadosCount.asignado, estadosCount.en_progreso, estadosCount.completado, estadosCount.cancelado], backgroundColor: ['#fef3c7', '#dbeafe', '#ede9fe', '#d1fae5', '#fee2e2', '#f1f5f9'] }] }, options: { responsive: true, maintainAspectRatio: false } });
+                estadosChart = new Chart(ctx2, { type: 'doughnut', data: { labels: ['Buscando tasker', 'Asignado', 'En progreso', 'Completado', 'Cancelado'], datasets: [{ data: [estadosCount.pendiente_propuestas, estadosCount.asignado, estadosCount.en_progreso, estadosCount.completado, estadosCount.cancelado], backgroundColor: ['#dbeafe', '#ede9fe', '#d1fae5', '#fee2e2', '#f1f5f9'] }] }, options: { responsive: true, maintainAspectRatio: false } });
             } catch (e) { console.error(e); }
         }
 
@@ -665,7 +713,7 @@
                 let query = supabase.from('profiles').select('*').order('created_at', { ascending: false });
                 if (filtro !== 'todos') query = query.eq('role', filtro);
                 const { data: usuarios } = await query;
-                if (!usuarios?.length) { tbody.innerHTML = '</table><td colspan="6" class="text-center p-8 text-slate-400">No hay usuarios</tbody>'; return; }
+                if (!usuarios?.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-slate-400">No hay usuarios</tbody>'; return; }
                 tbody.innerHTML = usuarios.map(u => `<tr class="border-b"><td class="p-4"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-slate-300 bg-cover" style="background-image: url('${u.photo_url || ''}')"></div><span class="font-medium">${u.full_name || 'Sin nombre'}</span></div></td>
                 <td class="p-4">${u.email}</td><td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'tasker' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}">${u.role === 'admin' ? 'Admin' : u.role === 'tasker' ? 'Tasker' : 'Cliente'}</span></td>
                 <td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${u.status === 'active' || u.status === 'verified' ? 'bg-green-100 text-green-700' : u.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}">${u.status === 'active' ? 'Activo' : u.status === 'verified' ? 'Verificado' : u.status === 'pending' ? 'Pendiente' : 'Rechazado'}</span></td>
@@ -709,9 +757,9 @@
                 let query = supabase.from('servicios').select('*, cliente:cliente_id(full_name), tasker:tasker_id(full_name)').order('created_at', { ascending: false }).limit(50);
                 if (filtro !== 'todos') query = query.eq('status', filtro);
                 const { data: servicios } = await query;
-                if (!servicios?.length) { tbody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-slate-400">No hay servicios</tbody>'; return; }
-                tbody.innerHTML = servicios.map(s => `<tr class="border-b"><td class="p-4">${s.cliente?.full_name || 'Cliente'}</td><td class="p-4">${s.subcategoria}</td><td class="p-4">${s.tasker?.full_name || 'Sin asignar'}</td><td class="p-4 font-bold">$${s.monto_ofertado?.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${obtenerClaseEstado(s.status)}">${obtenerTextoEstado(s.status)}</span></td><td class="p-4 text-sm">${new Date(s.created_at).toLocaleDateString()}</td></tr>`).join('');
-            } catch (e) { console.error(e); tbody.innerHTML = '</table><td colspan="6" class="text-center p-8 text-red-400">Error</tbody>'; }
+                if (!servicios?.length) { tbody.innerHTML = '<td><td colspan="6" class="text-center p-8 text-slate-400">No hay servicios</tbody>'; return; }
+                tbody.innerHTML = servicios.map(s => `<tr class="border-b"><td class="p-4">${s.cliente?.full_name || 'Cliente'}</td><td class="p-4">${s.subcategoria}</td><td class="p-4">${s.tasker?.full_name || 'Sin asignar'}</td><td class="p-4 font-bold">${s.monto_acordado ? `$${s.monto_acordado.toFixed(2)}` : 'Por definir'}</td><td class="p-4"><span class="px-2 py-1 rounded-full text-xs ${obtenerClaseEstado(s.status)}">${obtenerTextoEstado(s.status)}</span></td><td class="p-4 text-sm">${new Date(s.created_at).toLocaleDateString()}</td></tr>`).join('');
+            } catch (e) { console.error(e); tbody.innerHTML = '<tr><td colspan="6" class="text-center p-8 text-red-400">Error</tbody>'; }
         };
 
         // =============================================
@@ -803,10 +851,10 @@
                     const { count: pendientes } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'tasker').eq('status', 'pending');
                     content.innerHTML = `<div class="grid grid-cols-2 gap-4"><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-blue-600">${clientes || 0}</p><p>Clientes</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-green-600">${taskers || 0}</p><p>Taskers</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-purple-600">${admins || 0}</p><p>Admins</p></div><div class="bg-yellow-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-yellow-600">${pendientes || 0}</p><p>Taskers pendientes</p></div></div>`;
                 } else if (tipo === 'servicios') {
-                    const estados = ['pendiente_pago', 'publicado', 'asignado', 'en_progreso', 'completado', 'cancelado'];
+                    const estados = ['pendiente_propuestas', 'asignado', 'en_progreso', 'completado', 'cancelado'];
                     const stats = {};
                     for (const e of estados) { const { count } = await supabase.from('servicios').select('*', { count: 'exact', head: true }).eq('status', e); stats[e] = count || 0; }
-                    content.innerHTML = `<div class="grid grid-cols-2 gap-4"><div class="bg-yellow-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-yellow-600">${stats.pendiente_pago}</p><p>Pendiente pago</p></div><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-blue-600">${stats.publicado}</p><p>Publicados</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-purple-600">${stats.asignado}</p><p>Asignados</p></div><div class="bg-indigo-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-indigo-600">${stats.en_progreso}</p><p>En progreso</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-green-600">${stats.completado}</p><p>Completados</p></div><div class="bg-red-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-red-600">${stats.cancelado}</p><p>Cancelados</p></div></div>`;
+                    content.innerHTML = `<div class="grid grid-cols-2 gap-4"><div class="bg-blue-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-blue-600">${stats.pendiente_propuestas}</p><p>Buscando tasker</p></div><div class="bg-purple-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-purple-600">${stats.asignado}</p><p>Asignados</p></div><div class="bg-indigo-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-indigo-600">${stats.en_progreso}</p><p>En progreso</p></div><div class="bg-green-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-green-600">${stats.completado}</p><p>Completados</p></div><div class="bg-red-50 p-4 rounded-xl text-center"><p class="text-2xl font-bold text-red-600">${stats.cancelado}</p><p>Cancelados</p></div></div>`;
                 } else if (tipo === 'ganancias') {
                     const { data: pagos } = await supabase.from('pagos').select('monto_total, comision_taskers').eq('status', 'completado');
                     const total = pagos?.reduce((s, p) => s + (p.monto_total || 0), 0) || 0;
@@ -831,33 +879,16 @@
                 await verificarAdmin();
             } catch (e) { mostrarToast('Error: ' + e.message, 'error'); }
         });
-        window.subirFotoAdmin = async function() {
-            const i = document.getElementById('fotoAdmin');
-            if (!i.files?.[0]) return;
-            mostrarCarga();
-            try {
-                const f = i.files[0];
-                if (f.size > 2 * 1024 * 1024) throw new Error('Máx 2MB');
-                const supabase = initSupabase();
-                const n = `profiles/${usuarioActual.id}/${Date.now()}_${f.name}`;
-                await supabase.storage.from('profiles-photos').upload(n, f);
-                const { data: { publicUrl } } = supabase.storage.from('profiles-photos').getPublicUrl(n);
-                await supabase.from('profiles').update({ photo_url: publicUrl }).eq('id', usuarioActual.id);
-                document.getElementById('headerAvatar').style.backgroundImage = `url('${publicUrl}')`;
-                document.getElementById('adminAvatar').style.backgroundImage = `url('${publicUrl}')`;
-                mostrarToast('Foto actualizada', 'success');
-            } catch (e) { mostrarToast('Error: ' + e.message, 'error'); } finally { ocultarCarga(); }
-        };
 
         // =============================================
         // UTILIDADES
         // =============================================
         function obtenerClaseEstado(s) {
-            const clases = { pendiente_pago: 'bg-yellow-100 text-yellow-700', publicado: 'bg-blue-100 text-blue-700', asignado: 'bg-purple-100 text-purple-700', en_progreso: 'bg-indigo-100 text-indigo-700', completado: 'bg-green-100 text-green-700', cancelado: 'bg-red-100 text-red-700' };
+            const clases = { pendiente_propuestas: 'bg-blue-100 text-blue-700', asignado: 'bg-purple-100 text-purple-700', en_progreso: 'bg-indigo-100 text-indigo-700', completado: 'bg-green-100 text-green-700', cancelado: 'bg-red-100 text-red-700' };
             return clases[s] || 'bg-gray-100 text-gray-700';
         }
         function obtenerTextoEstado(s) {
-            const textos = { pendiente_pago: 'Pendiente pago', publicado: 'Publicado', asignado: 'Asignado', en_progreso: 'En progreso', completado: 'Completado', cancelado: 'Cancelado' };
+            const textos = { pendiente_propuestas: 'Buscando tasker', asignado: 'Asignado', en_progreso: 'En progreso', completado: 'Completado', cancelado: 'Cancelado' };
             return textos[s] || s;
         }
 
